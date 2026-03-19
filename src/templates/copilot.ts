@@ -1,9 +1,22 @@
-import type { ProjectType, Feature, GeneratedFile } from './types';
+import type { ProjectType, Feature, Role, GeneratedFile } from './types';
 
-function generateCopilotInstructions(projectName: string, projectType: ProjectType, features: Feature[]): string {
+const roleIntros: Record<Role, string> = {
+  developer: 'You are assisting a software developer focused on writing clean, maintainable, production-ready code.',
+  'data-scientist': 'You are assisting a data scientist focused on experimentation, analysis, and ML model development.',
+  devops: 'You are assisting a DevOps/SRE engineer focused on infrastructure, automation, and reliability.',
+  pm: 'You are assisting a product manager focused on requirements clarity, acceptance criteria, and specs.',
+  qa: 'You are assisting a QA engineer focused on test coverage, edge cases, and quality gates.',
+  architect: 'You are assisting a software architect focused on system design, trade-offs, and technical decisions.',
+};
+
+function generateCopilotInstructions(projectName: string, projectType: ProjectType, features: Feature[], role: Role): string {
   const sections: string[] = [];
 
   sections.push(`# ${projectName} — GitHub Copilot Instructions`);
+  sections.push('');
+
+  // Role context
+  sections.push(roleIntros[role]);
   sections.push('');
 
   // Project context
@@ -28,6 +41,61 @@ This is a Node.js Express API with TypeScript strict mode.
 - Use dependency injection for testability`,
     general: `## Project
 Follow the conventions and patterns already established in this codebase.`,
+    'ml-python': `## Project
+This is a Python ML/Data Science project.
+- Python 3.12+, scikit-learn, PyTorch/TensorFlow, pandas, jupyter, matplotlib
+- Structure: notebooks/, src/data/, src/models/, src/features/, src/evaluation/
+- Reproducibility: pin dependencies, set random seeds, version datasets`,
+    'data-engineering': `## Project
+This is a Data Engineering project.
+- Python 3.12+, Apache Airflow, PySpark, dbt, Great Expectations
+- Structure: dags/, models/, tests/, macros/, seeds/
+- Idempotent pipelines, schema validation, data quality checks`,
+    django: `## Project
+This is a Django project with Django REST Framework and PostgreSQL.
+- Python 3.12+, Django 5+, Django REST Framework
+- Structure: apps/<app_name>/models.py, views.py, serializers.py, urls.py
+- Always use migrations; never modify the database manually`,
+    'aws-cdk': `## Project
+This is an AWS CDK v2 infrastructure project with TypeScript.
+- Use L2/L3 constructs over L1 (Cfn*) when available
+- Structure: lib/ for stacks, bin/ for app entry
+- Tag all resources, follow least-privilege IAM`,
+    'gcp-terraform': `## Project
+This is a GCP Terraform infrastructure project.
+- HCL, Terraform, gcloud CLI, GCP APIs
+- Structure: modules/, environments/, variables.tf, outputs.tf
+- Use remote state backend, lock state files`,
+    'azure-infra': `## Project
+This is an Azure infrastructure project using Bicep.
+- Bicep, Azure CLI, ARM templates
+- Structure: modules/, main.bicep, parameters/
+- Follow Azure Well-Architected Framework principles`,
+    databricks: `## Project
+This is a Databricks project.
+- PySpark, Delta Lake, Unity Catalog, MLflow, Databricks CLI
+- Structure: notebooks/, src/, jobs/, tests/
+- Use Delta Lake for all tables, Unity Catalog for governance`,
+    snowflake: `## Project
+This is a Snowflake project.
+- SQL, Snowpark Python, dbt, SnowSQL
+- Structure: models/, macros/, tests/, seeds/, snapshots/
+- Use dbt for transformations, Snowpark for complex UDFs`,
+    'react-native': `## Project
+This is a React Native + Expo project with TypeScript.
+- React Navigation for routing
+- Structure: src/screens/, src/components/, src/hooks/, src/navigation/
+- Test on both iOS and Android`,
+    'go-api': `## Project
+This is a Go API project.
+- Go 1.22+, Chi/Gin, sqlx, Go modules
+- Structure: cmd/, internal/handlers/, internal/services/, internal/models/
+- Handle errors explicitly — no panic in production code`,
+    'rust-cli': `## Project
+This is a Rust CLI/service project.
+- Rust, Cargo, clap, serde, tokio
+- Structure: src/main.rs, src/lib.rs, src/commands/, src/models/
+- Use Result<T, E> — avoid unwrap() in production`,
   };
 
   sections.push(contextMap[projectType]);
@@ -39,7 +107,7 @@ Follow the conventions and patterns already established in this codebase.`,
 - Keep functions under 40 lines; extract helpers when longer
 - Use early returns to reduce nesting
 - Handle all error cases explicitly
-- ${projectType === 'python' ? 'Type hints on all function signatures' : 'No `any` types — use proper TypeScript types'}
+- ${projectType === 'python' || projectType === 'ml-python' || projectType === 'data-engineering' || projectType === 'django' || projectType === 'databricks' ? 'Type hints on all function signatures' : projectType === 'go-api' ? 'Use explicit types — no empty interface{}' : projectType === 'rust-cli' ? 'Use explicit types — avoid unwrap() in production' : projectType === 'gcp-terraform' ? 'Use proper variable types and validation' : projectType === 'azure-infra' ? 'Use explicit parameter types and decorators' : projectType === 'snowflake' ? 'Use explicit column types in SQL' : 'No `any` types — use proper TypeScript types'}
 - Prefer composition over inheritance
 - Add JSDoc/docstrings for public APIs`);
   sections.push('');
@@ -95,6 +163,65 @@ Follow the conventions and patterns already established in this codebase.`,
 - Atomic commits, feature branches, no direct main commits
 - Never commit secrets`);
 
+  if (features.includes('deployment'))
+    featureRules.push(`## Deployment
+- Environment variables for all config — never hardcode
+- Validate required env vars at startup
+- Health check endpoints required`);
+
+  if (features.includes('mlops'))
+    featureRules.push(`## MLOps
+- Track all experiments with parameters, metrics, and artifacts
+- Version datasets and models — never overwrite in place
+- Reproducible pipelines with pinned dependencies and random seeds
+- Automate model validation before promotion
+- Model registry with stage transitions (staging → production)`);
+
+  if (features.includes('data-pipeline'))
+    featureRules.push(`## Data Pipelines
+- Idempotent pipelines — safe to re-run without side effects
+- Validate data quality at ingestion and transformation boundaries
+- Schema enforcement and evolution strategies
+- Track data lineage end-to-end
+- Partition large datasets by date or logical key`);
+
+  if (features.includes('monitoring'))
+    featureRules.push(`## Monitoring
+- Structured logs (JSON) with correlation IDs
+- Track latency, error rate, throughput, saturation
+- Alerts for SLO violations
+- Distributed tracing for multi-service architectures`);
+
+  if (features.includes('security'))
+    featureRules.push(`## Security
+- OWASP Top 10 mitigations
+- Never hardcode secrets — use secrets manager or env vars
+- Validate and sanitize all user inputs
+- Least-privilege IAM
+- Audit logging for sensitive operations`);
+
+  if (features.includes('ci-cd'))
+    featureRules.push(`## CI/CD
+- Lint, type check, and test on every PR
+- Branch protection on main
+- Automated deployments: staging on merge, production on release
+- Cache dependencies for faster pipelines`);
+
+  if (features.includes('containerization'))
+    featureRules.push(`## Containerization
+- Multi-stage Docker builds for minimal images
+- Pin base image versions — never use \`latest\`
+- Run as non-root user
+- .dockerignore for unnecessary files
+- Resource limits in orchestration configs`);
+
+  if (features.includes('documentation'))
+    featureRules.push(`## Documentation
+- ADRs for significant technical decisions
+- API docs in sync with implementation (OpenAPI/Swagger)
+- Runbooks for operational procedures
+- README: new dev productive in < 30 minutes`);
+
   sections.push(featureRules.join('\n\n'));
 
   return sections.join('\n');
@@ -104,11 +231,12 @@ export function generateCopilotFiles(
   projectName: string,
   projectType: ProjectType,
   features: Feature[],
+  role: Role = 'developer',
 ): GeneratedFile[] {
   return [
     {
       path: '.github/copilot-instructions.md',
-      content: generateCopilotInstructions(projectName, projectType, features),
+      content: generateCopilotInstructions(projectName, projectType, features, role),
     },
   ];
 }

@@ -626,3 +626,79 @@ body {
   flex-direction: column;
   min-height: 100vh;
 }
+
+/* --- Category Groups --- */
+.category-group {
+  margin-bottom: 20px;
+}
+
+.category-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+
+.category-icon {
+  font-size: 1rem;
+}
+
+/* --- Role Selector --- */
+.role-selector {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.role-selector h3 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 10px;
+}
+
+.role-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.role-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  color: var(--text);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.role-pill:hover {
+  border-color: var(--border-selected);
+  background: var(--bg-card-hover);
+}
+
+.role-pill--selected {
+  border-color: var(--border-selected);
+  background: var(--bg-selected);
+  color: var(--text-bright);
+  box-shadow: 0 0 8px var(--accent-glow);
+}
+
+.role-pill-icon {
+  font-size: 0.95rem;
+}

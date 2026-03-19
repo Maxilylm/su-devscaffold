@@ -6,10 +6,12 @@ import { FilePreview } from './components/FilePreview';
 import {
   generateFiles,
   CLI_OPTIONS,
+  PROJECT_CATEGORIES,
   PROJECT_OPTIONS,
-  FEATURE_OPTIONS,
+  FEATURE_CATEGORIES,
+  ROLE_OPTIONS,
 } from './templates';
-import type { CodingCLI, ProjectType, Feature } from './templates';
+import type { CodingCLI, ProjectType, Feature, Role } from './templates';
 import './App.css';
 
 const STEP_LABELS = ['AI CLI', 'Project Type', 'Features', 'Download'];
@@ -21,13 +23,14 @@ function App() {
   const [features, setFeatures] = useState<Feature[]>([]);
   const [projectName, setProjectName] = useState('my-project');
   const [animDir, setAnimDir] = useState<'forward' | 'backward'>('forward');
+  const [role, setRole] = useState<Role>('developer');
 
   const files = useMemo(() => {
     if (cli && projectType) {
-      return generateFiles(cli, projectName, projectType, features);
+      return generateFiles(cli, projectName, projectType, features, role);
     }
     return [];
-  }, [cli, projectName, projectType, features]);
+  }, [cli, projectName, projectType, features, role]);
 
   const canNext =
     (step === 1 && cli !== null) ||
@@ -97,17 +100,40 @@ function App() {
                 className="name-input"
               />
             </div>
-            <div className="options-grid project-grid">
-              {PROJECT_OPTIONS.map((opt) => (
-                <OptionCard
-                  key={opt.id}
-                  icon={opt.icon}
-                  name={opt.name}
-                  description={opt.description}
-                  selected={projectType === opt.id}
-                  onClick={() => setProjectType(opt.id)}
-                />
-              ))}
+            {PROJECT_CATEGORIES.map((cat) => (
+              <div key={cat.name} className="category-group">
+                <h3 className="category-header">
+                  <span className="category-icon">{cat.icon}</span> {cat.name}
+                </h3>
+                <div className="options-grid project-grid" style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
+                  {cat.options.map((opt) => (
+                    <OptionCard
+                      key={opt.id}
+                      icon={opt.icon}
+                      name={opt.name}
+                      description={opt.description}
+                      selected={projectType === opt.id}
+                      onClick={() => setProjectType(opt.id)}
+                    />
+                  ))}
+                </div>
+              </div>
+            ))}
+            <div className="role-selector">
+              <h3 className="category-header">Your Role (optional)</h3>
+              <div className="role-pills">
+                {ROLE_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    className={`role-pill${role === opt.id ? ' role-pill--selected' : ''}`}
+                    onClick={() => setRole(opt.id)}
+                    title={opt.description}
+                  >
+                    <span className="role-pill-icon">{opt.icon}</span> {opt.name}
+                  </button>
+                ))}
+              </div>
             </div>
           </section>
         )}
@@ -118,18 +144,23 @@ function App() {
             <p className="step-desc">
               Pick the features relevant to your project. Each adds specialized rules and patterns.
             </p>
-            <div className="features-grid">
-              {FEATURE_OPTIONS.map((opt) => (
-                <FeatureCheckbox
-                  key={opt.id}
-                  icon={opt.icon}
-                  name={opt.name}
-                  description={opt.description}
-                  checked={features.includes(opt.id)}
-                  onChange={() => toggleFeature(opt.id)}
-                />
-              ))}
-            </div>
+            {FEATURE_CATEGORIES.map((cat) => (
+              <div key={cat.name} className="category-group">
+                <h3 className="category-header">{cat.name}</h3>
+                <div className="features-grid">
+                  {cat.options.map((opt) => (
+                    <FeatureCheckbox
+                      key={opt.id}
+                      icon={opt.icon}
+                      name={opt.name}
+                      description={opt.description}
+                      checked={features.includes(opt.id)}
+                      onChange={() => toggleFeature(opt.id)}
+                    />
+                  ))}
+                </div>
+              </div>
+            ))}
           </section>
         )}
 
