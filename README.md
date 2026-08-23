@@ -1,73 +1,33 @@
-# React + TypeScript + Vite
+# DevScaffold
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> A four-step wizard that generates the config files your AI coding assistant needs, bundled as a downloadable ZIP.
 
-Currently, two official plugins are available:
+**[Live demo](https://su-devscaffold.vercel.app)**
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Every AI coding CLI expects its own instruction file — `CLAUDE.md` for Claude Code, `.cursorrules` for Cursor, `AGENTS.md` for Codex, `.github/copilot-instructions.md` for Copilot — and writing a good one from scratch for each new project is tedious. DevScaffold walks you through picking a CLI, a project type, and the features you actually use, then composes the matching files from templates and zips them in the browser. There is no backend and no LLM call: every file is generated locally from typed template functions, so the whole thing runs as a static site.
 
-## React Compiler
+## Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Six AI CLI targets: Claude Code, Cursor, Codex CLI, GitHub Copilot, OpenCode, and Gemini CLI
+- Sixteen project types across web/mobile, backend, ML & data, and cloud infrastructure
+- Fifteen optional feature modules (auth, database, testing, MLOps, CI/CD, Docker/K8s, security, and more) that inject extra rules
+- Role selector — developer, data scientist, DevOps, PM, QA, or architect — that tailors the generated guidance
+- Live file preview with per-file copy, plus a ZIP download of the whole config set
 
-## Expanding the ESLint configuration
+## Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- React 19 + TypeScript + Vite
+- JSZip for client-side archive generation
+- No backend, no external APIs — fully static
+- Deployed on Vercel
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Running locally
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Part of a series of 91 small web apps. [Browse them all](https://su-slopmachine.vercel.app).
